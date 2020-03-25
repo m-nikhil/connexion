@@ -42,7 +42,7 @@ class ResponseValidator(BaseDecorator):
         response_definition = self.operation.response_definition(str(status_code), content_type)
         response_schema = self.operation.response_schema(str(status_code), content_type)
 
-        if self.is_json_schema_compatible(response_schema):
+        if self.is_json_schema_compatible(response_schema,content_type):
             v = ResponseBodyValidator(response_schema, validator=self.validator)
             try:
                 data = self.operation.json_loads(data)
@@ -62,7 +62,7 @@ class ResponseValidator(BaseDecorator):
                 raise NonConformingResponseHeaders(message=msg)
         return True
 
-    def is_json_schema_compatible(self, response_schema):
+    def is_json_schema_compatible(self, response_schema, content_type):
         """
         Verify if the specified operation responses are JSON schema
         compatible.
@@ -76,7 +76,7 @@ class ResponseValidator(BaseDecorator):
         """
         if not response_schema:
             return False
-        return all_json([self.mimetype]) or self.mimetype == 'text/plain'
+        return all_json([content_type]) or content_type == 'text/plain'
 
     def __call__(self, function):
         """
